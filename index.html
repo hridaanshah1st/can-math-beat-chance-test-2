@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can Math Beat Chance?</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f8f3e8;color:#172554;line-height:1.6}
+header{background:#172554;color:white;padding:20px 8%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h2{color:#facc15}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-weight:bold}
+nav a:hover{color:#facc15}
+button,.btn{background:#1e3a8a;color:white;border:0;padding:12px 22px;border-radius:9px;font-size:16px;font-weight:bold;cursor:pointer;margin:7px;text-decoration:none;display:inline-block}
+button:hover:not(:disabled),.btn:hover{background:#ca8a04}
+button:disabled{opacity:.45;cursor:not-allowed}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:40px;padding:70px 8%;background:#1e3a8a;color:white;flex-wrap:wrap}
+.hero-text{flex:1;min-width:260px}
+.hero h1{font-size:clamp(36px,5vw,52px);color:#facc15;line-height:1.15;margin-bottom:20px}
+.hero p{font-size:19px;margin-bottom:25px}
+.hero img{width:38%;min-width:240px;max-width:430px;border-radius:18px}
+.btn{background:#facc15;color:#172554}
+section{padding:55px 8%;text-align:center}
+section h2{font-size:32px;margin-bottom:12px;color:#1e3a8a}
+.cards{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:28px}
+.card,.panel{background:white;padding:25px;border-radius:15px;box-shadow:0 4px 12px #00000012}
+.card{width:250px}
+.card h3{color:#ca8a04;margin-bottom:10px}
+.games{background:#e0e7ff}
+.game-link{display:inline-block;background:#1e3a8a;color:white;text-decoration:none;padding:15px 24px;border-radius:10px;font-weight:bold;margin:10px}
+.game-link:hover{background:#ca8a04}
+.page{display:none;max-width:900px;margin:35px auto;padding:0 20px;text-align:center}
+.page.active{display:block}
+.panel{margin:22px auto}
+.result{font-size:23px;font-weight:bold;color:#1e3a8a;min-height:38px;margin:12px}
+.stats{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:12px}
+.stat{background:#e0e7ff;padding:12px 18px;border-radius:10px;min-width:100px}
+.history{max-height:190px;overflow:auto;text-align:left;max-width:450px;margin:12px auto;padding-left:24px}
+.stage{height:190px;display:flex;justify-content:center;align-items:center;margin:12px}
+.die{width:105px;height:105px;background:white;border:5px solid #1e3a8a;border-radius:18px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:12px;gap:4px;box-shadow:0 5px 0 #172554}
+.pip{background:#172554;border-radius:50%;width:15px;height:15px;align-self:center;justify-self:center}
+.die.rolling{animation:dieFlight .8s ease-in-out}
+@keyframes dieFlight{0%{transform:translateY(0) rotate(0)}35%{transform:translateY(-85px) rotate(160deg)}70%{transform:translateY(-28px) rotate(310deg)}100%{transform:translateY(0) rotate(360deg)}}
+.coin{width:125px;height:125px;border-radius:50%;border:8px ridge #ca8a04;background:radial-gradient(circle at 35% 30%,#fff2a8,#facc15 55%,#ca8a04);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;color:#704900;box-shadow:0 6px 0 #9a6700}
+.coin.flipping{animation:coinFlip .85s ease-in-out}
+@keyframes coinFlip{0%{transform:rotateY(0) translateY(0)}30%{transform:rotateY(540deg) translateY(-75px)}65%{transform:rotateY(1080deg) translateY(-25px)}100%{transform:rotateY(1440deg) translateY(0)}}
+input{padding:11px;border:2px solid #cbd5e1;border-radius:8px;font-size:16px;max-width:100%}
+.wheel-wrap{position:relative;width:min(330px,80vw);height:min(330px,80vw);margin:18px auto 28px}
+.wheel{width:100%;height:100%;border:8px solid #172554;border-radius:50%;position:relative;overflow:hidden;background:#e0e7ff;transition:transform 5s cubic-bezier(.12,.75,.12,1);box-shadow:0 5px 12px #0002}
+.wheel-label{position:absolute;left:50%;top:50%;width:46%;transform-origin:left center;text-align:right;font-weight:bold;font-size:clamp(10px,2vw,14px);color:#172554;padding-right:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pointer{position:absolute;z-index:2;top:-12px;left:calc(50% - 14px);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid #ca8a04}
+.entry-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.entry-row input{width:230px}
+.entries{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px}
+.entry{background:#e0e7ff;padding:6px 10px;border-radius:20px}
+.small{font-size:14px;color:#475569}
+footer{text-align:center;padding:22px;background:#172554;color:white;margin-top:40px}
+@media(max-width:700px){.hero{text-align:center}.hero img{width:100%;margin:auto}header{justify-content:center}nav{justify-content:center}}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Math vs Chance</h2>
+<nav>
+<a href="#" onclick="showPage('home')">Home</a>
+<a href="#" onclick="showPage('dice')">Dice</a>
+<a href="#" onclick="showPage('coin')">Coin</a>
+<a href="#" onclick="showPage('spinner')">Spinner</a>
+</nav>
+</header>
+
+<!-- HOMEPAGE -->
+<div id="home" class="page active" style="max-width:none;padding:0;margin:0">
+<div class="hero">
+<div class="hero-text">
+<h1>Can Math Beat Chance?</h1>
+<p>Is winning all about luck, or can mathematics help us understand chance? Explore probability, test ideas, and see what happens when you experiment.</p>
+<a class="btn" href="#games" onclick="document.getElementById('games').scrollIntoView()">Start Exploring</a>
+</div>
+<img src="golden coin raffle spin.png" alt="Golden coin raffle spinner">
+</div>
+
+<section id="about">
+<h2>About the Project</h2>
+<p>This website explores the connection between mathematics and chance. Try different random experiments, track the results, and see how probability works in real life.</p>
+</section>
+
+<section id="explore">
+<h2>Explore the World of Probability</h2>
+<div class="cards">
+<div class="card"><h3>Probability</h3><p>Learn how to describe the likelihood of an event happening.</p></div>
+<div class="card"><h3>Patterns</h3><p>Look for patterns in results from repeated experiments.</p></div>
+<div class="card"><h3>Strategy</h3><p>Use mathematical thinking to make better decisions.</p></div>
+</div>
+</section>
+
+<section class="games" id="games">
+<h2>Choose an Experiment</h2>
+<p>Choose an experiment to get started!</p>
+<a class="game-link" href="#" onclick="showPage('dice')">🎲 Dice Roller</a>
+<a class="game-link" href="#" onclick="showPage('coin')">🪙 Coin Flipper</a>
+<a class="game-link" href="#" onclick="showPage('spinner')">🎡 Custom Spinner</a>
+</section>
+</div>
+
+<!-- DICE PAGE -->
+<div id="dice" class="page">
+<h1>🎲 Dice Roller</h1>
+<p>Roll a fair six-sided die and keep track of every result.</p>
+<div class="panel">
+<div class="stage"><div id="die" class="die"></div></div>
+<div class="result" id="diceResult">Ready to roll!</div>
+<button id="rollBtn" onclick="rollDie()">Roll Die</button>
+<div class="small">The dice animation plays for your first 3 rolls.</div>
+</div>
+<div class="panel">
+<h2>Results Tracker</h2>
+<div class="stats" id="diceStats"></div>
+<p id="diceTotal">Total rolls: 0</p>
+<h3>Roll History</h3>
+<ol class="history" id="diceHistory"></ol>
+<button onclick="resetDice()">Reset Results</button>
+</div>
+</div>
+
+<!-- COIN PAGE -->
+<div id="coin" class="page">
+<h1>🪙 Coin Flipper</h1>
+<p>Flip a coin and see how often you get heads or tails.</p>
+<div class="panel">
+<div class="stage"><div id="coinVisual" class="coin">HEADS</div></div>
+<div class="result" id="coinResult">Ready to flip!</div>
+<button id="flipBtn" onclick="flipCoin()">Flip Coin</button>
+<div class="small">The flipping animation plays for your first 3 flips.</div>
+</div>
+<div class="panel">
+<h2>Results Tracker</h2>
+<div class="stats">
+<div class="stat"><b>Heads</b><br><span id="heads">0</span></div>
+<div class="stat"><b>Tails</b><br><span id="tails">0</span></div>
+</div>
+<p id="coinTotal">Total flips: 0</p>
+<h3>Flip History</h3>
+<ol class="history" id="coinHistory"></ol>
+<button onclick="resetCoin()">Reset Results</button>
+</div>
+</div>
+
+<!-- SPINNER PAGE -->
+<div id="spinner" class="page">
+<h1>🎡 Custom Spinner</h1>
+<p>Add your own choices, then spin the wheel.</p>
+<div class="panel">
+<div class="entry-row">
+<input id="choiceInput" maxlength="22" placeholder="Type a choice...">
+<button id="addBtn" onclick="addChoice()">Add Choice</button>
+</div>
+<div id="entries" class="entries"></div>
+<div class="wheel-wrap">
+<div class="pointer"></div>
+<div id="wheel" class="wheel"></div>
+</div>
+<button id="spinBtn" onclick="spinWheel()">SPIN!</button>
+<div class="result" id="spinnerResult">Add at least 2 choices to begin.</div>
+<div class="small">All editing and spinning controls lock while the wheel is spinning.</div>
+</div>
+<div class="panel">
+<h2>Results Tracker</h2>
+<div id="spinnerStats" class="stats"></div>
+<p id="spinnerTotal">Total spins: 0</p>
+<h3>Spin History</h3>
+<ol id="spinnerHistory" class="history"></ol>
+<button onclick="resetSpinner()">Reset Results</button>
+</div>
+</div>
+
+<footer>Can Math Beat Chance? | Discover the Power of Mathematics</footer>
+
+<script>
+// PAGE NAVIGATION
+function showPage(page){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(page).classList.add('active');
+window.scrollTo(0,0);
+}
+
+// DICE
+const diceCounts=[0,0,0,0,0,0];
+let diceRolls=0,diceHistory=[];
+const patterns={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+function drawDie(n){
+const die=document.getElementById('die');die.innerHTML='';
+for(let i=0;i<9;i++){
+const p=document.createElement('span');
+if(patterns[n].includes(i))p.className='pip';
+die.appendChild(p);
+}}
+function updateDice(){
+document.getElementById('diceStats').innerHTML=diceCounts.map((n,i)=>`<div class="stat"><b>${i+1}</b><br>${n} time(s)</div>`).join('');
+document.getElementById('diceTotal').textContent='Total rolls: '+diceRolls;
+document.getElementById('diceHistory').innerHTML=diceHistory.map((n,i)=>`<li>Roll ${i+1}: ${n}</li>`).reverse().join('');
+}
+function rollDie(){
+const btn=document.getElementById('rollBtn');if(btn.disabled)return;
+btn.disabled=true;
+const die=document.getElementById('die');
+const value=Math.floor(Math.random()*6)+1;
+function finish(){
+die.classList.remove('rolling');drawDie(value);
+diceCounts[value-1]++;diceRolls++;diceHistory.push(value);
+document.getElementById('diceResult').textContent='You rolled a '+value+'!';
+updateDice();btn.disabled=false;
+}
+if(diceRolls<3){
+die.classList.remove('rolling');drawDie(Math.ceil(Math.random()*6));
+void die.offsetWidth;die.classList.add('rolling');
+setTimeout(finish,850);
+}else finish();
+}
+function resetDice(){
+diceCounts.fill(0);diceRolls=0;diceHistory=[];
+document.getElementById('diceResult').textContent='Ready to roll!';
+drawDie(1);updateDice();
+}
+
+// COIN
+let headsCount=0,tailsCount=0,coinFlips=0,coinHistory=[];
+function updateCoin(){
+document.getElementById('heads').textContent=headsCount;
+document.getElementById('tails').textContent=tailsCount;
+document.getElementById('coinTotal').textContent='Total flips: '+coinFlips;
+document.getElementById('coinHistory').innerHTML=coinHistory.map((v,i)=>`<li>Flip ${i+1}: ${v}</li>`).reverse().join('');
+}
+function flipCoin(){
+const btn=document.getElementById('flipBtn');if(btn.disabled)return;
+btn.disabled=true;
+const coin=document.getElementById('coinVisual');
+const value=Math.random()<.5?'HEADS':'TAILS';
+function finish(){
+coin.classList.remove('flipping');coin.textContent=value;
+if(value==='HEADS')headsCount++;else tailsCount++;
+coinFlips++;coinHistory.push(value);
+document.getElementById('coinResult').textContent='It landed on '+value.toLowerCase()+'!';
+updateCoin();btn.disabled=false;
+}
+if(coinFlips<3){
+coin.classList.remove('flipping');void coin.offsetWidth;
+coin.classList.add('flipping');setTimeout(finish,900);
+}else finish();
+}
+function resetCoin(){
+headsCount=0;tailsCount=0;coinFlips=0;coinHistory=[];
+document.getElementById('coinVisual').textContent='HEADS';
+document.getElementById('coinResult').textContent='Ready to flip!';
+updateCoin();
+}
+
+// CUSTOM SPINNER
+let choices=['Prize 1','Prize 2','Prize 3','Prize 4'];
+let spinnerCounts={},spinnerSpins=0,spinnerHistory=[],rotation=0,spinning=false;
+const colors=['#facc15','#93c5fd','#fca5a5','#86efac','#c4b5fd','#fdba74','#67e8f9','#f9a8d4'];
+function escapeText(s){return s.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function renderSpinner(){
+document.getElementById('entries').innerHTML=choices.map((c,i)=>`<span class="entry">${escapeText(c)} <button style="margin:0;padding:3px 8px;font-size:12px" onclick="removeChoice(${i})" ${spinning?'disabled':''}>×</button></span>`).join('');
+const wheel=document.getElementById('wheel');
+if(!choices.length){wheel.style.background='#e0e7ff';wheel.innerHTML='';}
+else{
+const slice=360/choices.length;
+wheel.style.background=`conic-gradient(${choices.map((c,i)=>`${colors[i%colors.length]} ${i*slice}deg ${(i+1)*slice}deg`).join(',')})`;
+wheel.innerHTML=choices.map((c,i)=>{
+const angle=i*slice+slice/2;
+return `<div class="wheel-label" style="transform:rotate(${angle}deg) translateY(-50%)">${escapeText(c)}</div>`;
+}).join('');
+}
+document.getElementById('spinnerStats').innerHTML=choices.map(c=>`<div class="stat"><b>${escapeText(c)}</b><br>${spinnerCounts[c]||0} win(s)</div>`).join('');
+document.getElementById('spinnerTotal').textContent='Total spins: '+spinnerSpins;
+document.getElementById('spinnerHistory').innerHTML=spinnerHistory.map((c,i)=>`<li>Spin ${i+1}: ${escapeText(c)}</li>`).reverse().join('');
+document.getElementById('choiceInput').disabled=spinning;
+document.getElementById('addBtn').disabled=spinning;
+document.getElementById('spinBtn').disabled=spinning||choices.length<2;
+}
+function addChoice(){
+if(spinning)return;
+const input=document.getElementById('choiceInput');
+const value=input.value.trim();
+if(!value)return;
+if(choices.length>=12){document.getElementById('spinnerResult').textContent='You can add up to 12 choices.';return;}
+if(choices.some(c=>c.toLowerCase()===value.toLowerCase())){document.getElementById('spinnerResult').textContent='That choice is already on the spinner.';return;}
+choices.push(value);spinnerCounts[value]=0;input.value='';
+document.getElementById('spinnerResult').textContent='Choice added!';
+renderSpinner();
+}
+function removeChoice(i){
+if(spinning)return;
+const removed=choices.splice(i,1)[0];delete spinnerCounts[removed];
+renderSpinner();document.getElementById('spinnerResult').textContent='Choice removed.';
+}
+function spinWheel(){
+if(spinning||choices.length<2)return;
+spinning=true;renderSpinner();
+const winner=Math.floor(Math.random()*choices.length);
+const slice=360/choices.length;
+const center=winner*slice+slice/2;
+const current=((rotation%360)+360)%360;
+const adjustment=(360-center-current+360)%360;
+rotation+=360*6+adjustment;
+document.getElementById('wheel').style.transform=`rotate(${rotation}deg)`;
+setTimeout(()=>{
+const result=choices[winner];
+spinnerCounts[result]=(spinnerCounts[result]||0)+1;
+spinnerSpins++;spinnerHistory.push(result);
+document.getElementById('spinnerResult').textContent='The spinner landed on: '+result;
+spinning=false;renderSpinner();
+},5100);
+}
+function resetSpinner(){
+if(spinning)return;
+spinnerSpins=0;spinnerHistory=[];spinnerCounts={};
+choices.forEach(c=>spinnerCounts[c]=0);
+document.getElementById('spinnerResult').textContent='Results have been reset.';
+renderSpinner();
+}
+document.getElementById('choiceInput').addEventListener('keydown',e=>{if(e.key==='Enter')addChoice();});
+choices.forEach(c=>spinnerCounts[c]=0);
+drawDie(1);updateDice();updateCoin();renderSpinner();
+</script>
+</body>
+</html>
